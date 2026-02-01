@@ -22,6 +22,7 @@ A crash-safe, data-safe system for facility walkdowns with offline support, blue
 - **Offline Storage**: IndexedDB (Dexie.js)
 - **PWA**: next-pwa
 - **PDF Generation**: PDFKit / jsPDF
+- **Blueprint Viewer**: react-zoom-pan-pinch (custom component)
 
 ## Getting Started
 
@@ -75,14 +76,34 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 │   │   ├── admin/          # Admin UI for building management
 │   │   ├── api/            # API routes
 │   │   ├── auth/           # Authentication pages
+│   │   ├── blueprint-demo/ # BlueprintViewer demo page
 │   │   ├── dashboard/      # Main dashboard
 │   │   └── walkdown/       # Walkdown UI
 │   ├── components/         # Reusable components
+│   │   └── BlueprintViewer.tsx  # Blueprint zoom/pan/pin component
 │   └── lib/               # Utilities and shared code
 ├── prisma/
 │   └── schema.prisma      # Database schema
 └── public/                # Static assets
 ```
+
+## BlueprintViewer Component
+
+The project includes a professional, production-ready BlueprintViewer component with:
+
+- ✅ **Zoom & Pan**: Pinch-to-zoom on mobile, scroll wheel on desktop
+- ✅ **Tap-to-Pin**: Mark issue locations with normalized coordinates
+- ✅ **Priority Colors**: Visual coding (Critical=red, High=orange, Medium=yellow, Low=green)
+- ✅ **Interactive Tooltips**: Issue metadata on hover/tap
+- ✅ **Mobile Optimized**: Touch-friendly, responsive design
+- ✅ **Device Independent**: Normalized coordinates (0..1) work on any screen
+
+**Demo**: Visit `/blueprint-demo` to see it in action
+
+**Documentation**: 
+- Component API: `src/components/BlueprintViewer.README.md`
+- Integration guide: `BLUEPRINT_INTEGRATION.md`
+- Implementation details: `BLUEPRINT_VIEWER_SUMMARY.md`
 
 ## Key Workflows
 
