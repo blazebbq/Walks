@@ -46,6 +46,7 @@ export default function WalkdownDetailPage() {
 
   const [walkdown, setWalkdown] = useState<Walkdown | null>(null)
   const [loading, setLoading] = useState(true)
+  const [generatingPDF, setGeneratingPDF] = useState(false)
 
   useEffect(() => {
     if (walkdownId) {
@@ -91,6 +92,37 @@ export default function WalkdownDetailPage() {
         return 'bg-green-100 text-green-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleGeneratePDF = async () => {
+    if (!walkdownId) return
+
+    setGeneratingPDF(true)
+    try {
+      const response = await fetch(`/api/walkdowns/${walkdownId}/report`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      // Get the blob from the response
+      const blob = await response.blob()
+      
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `walkdown-report-${new Date().toISOString().split('T')[0]}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Failed to generate PDF report. Please try again.')
+    } finally {
+      setGeneratingPDF(false)
     }
   }
 
@@ -227,8 +259,19 @@ export default function WalkdownDetailPage() {
         </div>
 
         <div className="mt-6 flex gap-4">
-          <button className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-            Generate PDF Report
+          <button 
+            onClick={handleGeneratePDF}
+            disabled={generatingPDF}
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {generatingPDF ? (
+              <>
+                <span className="inline-block animate-spin mr-2">⚙️</span>
+                Generating PDF...
+              </>
+            ) : (
+              '📄 Generate PDF Report'
+            )}
           </button>
           <button className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
             Mark as Submitted
