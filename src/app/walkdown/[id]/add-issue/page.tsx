@@ -59,6 +59,11 @@ export default function AddIssuePage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isOnline, setIsOnline] = useState(true)
+  const [currentUserId, setCurrentUserId] = useState<string>('')
+
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [])
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -73,6 +78,20 @@ export default function AddIssuePage() {
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch('/api/auth/session')
+      if (response.ok) {
+        const session = await response.json()
+        if (session?.user?.id) {
+          setCurrentUserId(session.user.id)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user session:', error)
+    }
+  }
 
   useEffect(() => {
     fetchWalkdownAndRooms()
@@ -154,7 +173,7 @@ export default function AddIssuePage() {
     issueData: FormData,
     photoFile: File | null
   ): Promise<string> => {
-    const issueId = `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const issueId = crypto.randomUUID()
     
     const localIssue: LocalIssue = {
       id: issueId,
@@ -167,7 +186,7 @@ export default function AddIssuePage() {
       description: issueData.description,
       pinX: issueData.pinX,
       pinY: issueData.pinY,
-      createdByUserId: 'current-user',
+      createdByUserId: currentUserId || 'offline-user',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       synced: 0,
