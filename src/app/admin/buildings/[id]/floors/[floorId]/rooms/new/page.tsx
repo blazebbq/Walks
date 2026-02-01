@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 interface Floor {
   id: string
@@ -44,12 +43,14 @@ export default function NewRoomPage() {
     if (floorId) {
       fetchFloor()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floorId])
 
   useEffect(() => {
     if (floor?.blueprintImageUrl && canvasRef.current) {
       drawCanvas()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floor, polygonPoints])
 
   const fetchFloor = async () => {

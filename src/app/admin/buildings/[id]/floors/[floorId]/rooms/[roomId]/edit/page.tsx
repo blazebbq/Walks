@@ -57,12 +57,14 @@ export default function EditRoomPage() {
     if (roomId) {
       fetchRoom()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId])
 
   useEffect(() => {
     if (room?.floor?.blueprintImageUrl && canvasRef.current) {
       drawCanvas()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room, polygonPoints])
 
   const fetchRoom = async () => {
@@ -383,7 +385,7 @@ export default function EditRoomPage() {
                         try {
                           const points = JSON.parse(room.polygonJson)
                           setPolygonPoints(points)
-                        } catch (e) {
+                        } catch {
                           setPolygonPoints([])
                         }
                       } else {

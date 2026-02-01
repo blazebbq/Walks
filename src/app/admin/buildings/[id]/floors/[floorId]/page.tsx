@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 
 interface Issue {
@@ -31,7 +31,6 @@ interface Floor {
 
 export default function FloorDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const buildingId = params?.id as string
   const floorId = params?.floorId as string
   
@@ -44,6 +43,7 @@ export default function FloorDetailPage() {
     if (floorId) {
       fetchFloorAndRooms()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floorId])
 
   const fetchFloorAndRooms = async () => {
