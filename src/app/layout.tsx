@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ToastContainer } from "@/components/ui/Toast";
+import { SyncStatus } from "@/components/ui/SyncStatus";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
   title: "Facility Walkdown System",
@@ -27,10 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
       </head>
       <body className="antialiased">
-        {children}
+        <ErrorBoundary>
+          {children}
+          <ToastContainer />
+          <SyncStatus />
+          <ServiceWorkerRegistration />
+        </ErrorBoundary>
       </body>
     </html>
   );

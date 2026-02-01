@@ -281,12 +281,20 @@ export default function AddIssuePage() {
         await createIssueOnServer(photoUrl)
         setSaveStatus('saved')
         
+        // Show success toast
+        const { showToast } = await import('@/components/ui/Toast')
+        showToast('Issue saved successfully!', 'success')
+        
         setTimeout(() => {
           router.push(`/walkdown/${walkdownId}`)
         }, 500)
       } else {
         await saveToIndexedDB(formData, photo)
         setSaveStatus('saved')
+        
+        // Show offline save toast
+        const { showToast } = await import('@/components/ui/Toast')
+        showToast('Issue saved offline. Will sync when online.', 'info')
         
         setTimeout(() => {
           router.push(`/walkdown/${walkdownId}`)
@@ -295,16 +303,20 @@ export default function AddIssuePage() {
     } catch (error) {
       console.error('Error saving issue:', error)
       setSaveStatus('error')
-      setErrors({ submit: 'Failed to save issue. Please try again.' })
+      
+      const { showToast } = await import('@/components/ui/Toast')
       
       try {
         await saveToIndexedDB(formData, photo)
         setSaveStatus('saved')
+        showToast('Saved offline. Will sync when online.', 'warning')
         setTimeout(() => {
           router.push(`/walkdown/${walkdownId}`)
         }, 1000)
       } catch (dbError) {
         console.error('Failed to save to IndexedDB:', dbError)
+        setErrors({ submit: 'Failed to save issue. Please try again.' })
+        showToast('Failed to save issue', 'error')
       }
     } finally {
       setSubmitting(false)
@@ -331,7 +343,7 @@ export default function AddIssuePage() {
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
+            className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-500 min-h-[44px]"
             disabled={submitting}
           >
             ← Back
@@ -633,14 +645,14 @@ export default function AddIssuePage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
               disabled={submitting || loadingRooms}
             >
               {submitting
