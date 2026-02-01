@@ -96,7 +96,7 @@ export default function WalkdownDetailPage() {
   }
 
   const handleGeneratePDF = async () => {
-    if (!walkdownId) return
+    if (!walkdownId || !walkdown) return
 
     setGeneratingPDF(true)
     try {
@@ -113,7 +113,8 @@ export default function WalkdownDetailPage() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `walkdown-report-${new Date().toISOString().split('T')[0]}.pdf`
+      const sanitizedTitle = walkdown.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+      a.download = `walkdown-${sanitizedTitle}-${walkdownId.substring(0, 8)}-${new Date().toISOString().split('T')[0]}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -266,8 +267,8 @@ export default function WalkdownDetailPage() {
           >
             {generatingPDF ? (
               <>
-                <span className="inline-block animate-spin mr-2">⚙️</span>
-                Generating PDF...
+                <span className="inline-block animate-spin mr-2" aria-hidden="true">⚙️</span>
+                <span>Generating PDF...</span>
               </>
             ) : (
               '📄 Generate PDF Report'

@@ -119,11 +119,18 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const pdfBuffer = Buffer.concat(chunks)
 
     // Return PDF with proper headers
+    const sanitizedTitle = walkdown.title
+      .replace(/[^a-zA-Z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 50) // Limit length
+    const filename = `walkdown-${sanitizedTitle}-${new Date().toISOString().split('T')[0]}.pdf`
+
     return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="walkdown-${walkdown.title.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': pdfBuffer.length.toString(),
       },
     })
@@ -239,7 +246,7 @@ async function generatePDFContent(doc: typeof PDFDocument.prototype, walkdown: W
       checkNewPage(100)
 
       doc.fontSize(12).font('Helvetica-Bold').fillColor('#1e40af')
-      doc.text(`📍 ${roomName}`, margin, doc.y)
+      doc.text(`Room: ${roomName}`, margin, doc.y)
       doc.fillColor('#000000')
       doc.moveDown(0.5)
 
@@ -280,14 +287,14 @@ async function generatePDFContent(doc: typeof PDFDocument.prototype, walkdown: W
         // Blueprint location
         if (issue.pinX !== null && issue.pinY !== null) {
           doc.fontSize(8).fillColor('#666666')
-          doc.text(`📍 Blueprint Location: (${(issue.pinX * 100).toFixed(1)}%, ${(issue.pinY * 100).toFixed(1)}%) on ${issue.pinContext || 'floor'}`, issueX, issueY)
+          doc.text(`Location: (${(issue.pinX * 100).toFixed(1)}%, ${(issue.pinY * 100).toFixed(1)}%) on ${issue.pinContext || 'floor'}`, issueX, issueY)
           doc.fillColor('#000000')
           issueY = doc.y + 3
         }
 
         // Photos
         if (issue.photos && issue.photos.length > 0) {
-          doc.fontSize(8).text(`📷 ${issue.photos.length} photo(s) attached`, issueX, issueY)
+          doc.fontSize(8).text(`Photos: ${issue.photos.length} attached`, issueX, issueY)
           issueY = doc.y + 5
         }
 
