@@ -186,7 +186,7 @@ export default function AddIssuePage() {
       description: issueData.description,
       pinX: issueData.pinX,
       pinY: issueData.pinY,
-      createdByUserId: currentUserId || 'offline-user',
+      createdByUserId: currentUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       synced: 0,
@@ -259,6 +259,11 @@ export default function AddIssuePage() {
     e.preventDefault()
 
     if (!validateForm()) {
+      return
+    }
+
+    if (!currentUserId) {
+      setErrors({ submit: 'Please wait for authentication or refresh the page.' })
       return
     }
 
