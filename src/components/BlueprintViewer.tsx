@@ -33,6 +33,8 @@ const priorityBorders: Record<Issue['priority'], string> = {
   Low: 'border-green-600',
 };
 
+const TOOLTIP_DISPLAY_DURATION = 2000; // milliseconds
+
 export default function BlueprintViewer({
   blueprintUrl,
   existingIssues = [],
@@ -201,7 +203,7 @@ export default function BlueprintViewer({
                   onMouseEnter={() => setHoveredPin(issue.id)}
                   onMouseLeave={() => setHoveredPin(null)}
                   onTouchStart={() => setHoveredPin(issue.id)}
-                  onTouchEnd={() => setTimeout(() => setHoveredPin(null), 2000)}
+                  onTouchEnd={() => setTimeout(() => setHoveredPin(null), TOOLTIP_DISPLAY_DURATION)}
                 >
                   {/* Pin Icon */}
                   <div className="relative">
