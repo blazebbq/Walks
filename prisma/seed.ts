@@ -1,18 +1,14 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
-import bcrypt from 'bcryptjs'
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/walks_db'
-
-const pool = new Pool({ connectionString })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+})
 
 async function main() {
   console.log('🌱 Starting seed...')
 
   // Create a test user
+  const bcrypt = await import('bcryptjs')
   const hashedPassword = await bcrypt.hash('password123', 10)
   
   const user = await prisma.user.upsert({
@@ -135,5 +131,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
-    await pool.end()
   })
