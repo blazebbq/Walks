@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("user") // admin, user, qa
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  walkdowns         Walkdown[]
+  issues            Issue[]
+  qaVerifications   Issue[]    @relation("QAVerifications")
+  signOffs          SignOff[]
+}
+
+model Building {
+  id        String   @id @default(uuid())
+  name      String
+  siteCode  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  floors    Floor[]
+  walkdowns Walkdown[]
+}
+
+model Floor {
+  id                String   @id @default(uuid())
+  buildingId        String
+  name              String
+  blueprintImageUrl String?
+  blueprintWidth    Int?
+  blueprintHeight   Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  building  Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  rooms     Room[]
+  walkdowns Walkdown[]
+
+  @@index([buildingId])
+}
+
+model Room {
+  id                     String   @id @default(uuid())
+  floorId                String
+  name                   String
+  code                   String?
+  polygonJson            String?  // JSON array of points
+  roomBlueprintImageUrl  String?
+  roomBlueprintWidth     Int?
+  roomBlueprintHeight    Int?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  floor  Floor   @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  issues Issue[]
+
+  @@index([floorId])
+}
+
+model Walkdown {
+  id             String    @id @default(uuid())
+  buildingId     String
+  floorId        String?
+  title          String
+  createdByUserId String
+  status         String    @default("Draft") // Draft, Submitted, Archived
+  startedAt      DateTime  @default(now())
+  submittedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  building  Building @relation(fields: [buildingId], references: [id])
+  floor     Floor?   @relation(fields: [floorId], references: [id])
+  createdBy User     @relation(fields: [createdByUserId], references: [id])
+  issues    Issue[]
+  signOffs  SignOff[]
+
+  @@index([buildingId])
+  @@index([floorId])
+  @@index([createdByUserId])
+}
+
+model Issue {
+  id                 String    @id @default(uuid())
+  walkdownId         String
+  roomId             String
+  title              String?
+  type               String    // e.g., "Electrical", "Structural", "Cleanliness"
+  priority           String    // Low, Med, High, Critical
+  status             String    @default("Open") // Open, InProgress, Closed
+  description        String
+  pinX               Float?    // normalized 0..1
+  pinY               Float?    // normalized 0..1
+  pinContext         String?   // "floor" | "room"
+  createdByUserId    String
+  qaVerifiedAt       DateTime?
+  qaVerifiedByUserId String?
+  contractorName     String?
+  closedAt           DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  walkdown       Walkdown      @relation(fields: [walkdownId], references: [id], onDelete: Cascade)
+  room           Room          @relation(fields: [roomId], references: [id])
+  createdBy      User          @relation(fields: [createdByUserId], references: [id])
+  qaVerifiedBy   User?         @relation("QAVerifications", fields: [qaVerifiedByUserId], references: [id])
+  photos         IssuePhoto[]
+
+  @@index([walkdownId])
+  @@index([roomId])
+  @@index([createdByUserId])
+}
+
+model IssuePhoto {
+  id        String   @id @default(uuid())
+  issueId   String
+  photoUrl  String
+  thumbUrl  String?
+  createdAt DateTime @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([issueId])
+}
+
+model SignOff {
+  id                 String   @id @default(uuid())
+  walkdownId         String
+  userId             String?
+  role               String   // RaisedBy, Contractor, QA
+  signedName         String
+  signedDate         DateTime
+  signatureImageUrl  String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  walkdown Walkdown @relation(fields: [walkdownId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id])
+
+  @@index([walkdownId])
+  @@index([userId])
+}
